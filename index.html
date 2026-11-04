@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="./assets/img/favicon.ico" />
+    <title>SbiRadio</title>
+    <link href="css/global.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header>
+      <h1>SbiRadio - Tu Emisora</h1>
+      <span class="subtitle">
+        ~Un programa lleno de nostalgia, confort y buena música.
+      </span>
+    </header>
+    <main>
+      <div class="player-container">
+        <audio id="radio-player" controls preload="none">
+          <!-- <source src="https://tu-radio.duckdns.org/stream" type="audio/mpeg" /> -->
+          <!-- <source src="http://localhost:8000/radio" type="audio/mpeg" /> -->
+        </audio>
+
+        <div
+          data-type="podcastsPlayer"
+          data-publicToken="52772d11-8f66-4b8d-8cbd-9815f45871bb"
+          data-theme="light"
+          data-color="e81e4d"
+          data-channelId="a323f6d2-7058-41cd-a0a3-c04444dab698"
+          data-rendered="false"
+          class="cstrEmbed"
+        >
+          <a href="https://www.caster.fm">Shoutcast Hosting</a>
+          <a href="https://www.caster.fm">Stream Hosting</a>
+          <a href="https://www.caster.fm">Radio Server Hosting</a>
+        </div>
+        <script src="//cdn.cloud.caster.fm//widgets/embed.js"></script>
+      </div>
+      <div class="cover-container">
+        <img src="./assets/img/disco.jpg" alt="disco" />
+      </div>
+    </main>
+    <footer class="end">
+      <div class="end-logo">
+        <img
+          src="./assets/img/Sbi-B.webp"
+          alt="SbiDev Logo"
+          width="160px"
+          height="128px"
+          draggable="false"
+        />
+        <span class="end-title"> by ~SbiDev</span>
+      </div>
+      <div class="memerandum">
+        <p>&copy; 2026 Radio Comunitaria. Hecho con ❤️ y Software Libre.</p>
+      </div>
+    </footer>
+  </body>
+</html>
