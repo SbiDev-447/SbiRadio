@@ -220,7 +220,7 @@ main {
 
 @media (max-width: 600px) {
   header {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 0px 0px 0px;
   }
 
   main {
