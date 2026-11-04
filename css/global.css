@@ -51,10 +51,15 @@
 }
 
 html {
+  height: 100%;
   scroll-behavior: smooth;
 }
 
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--almond);
 }
 
@@ -85,10 +90,12 @@ header {
 
 main {
   display: grid;
+  flex: 1 0 auto; /* ocupa el alto restante: el footer queda al fondo */
   grid-template-columns: 1fr 2fr;
   gap: 1.5rem;
   padding-left: 1.5rem;
   align-items: center;
+  align-content: end; /* la portada queda pegada al footer */
   width: 100%;
 
   .player-container {
@@ -205,39 +212,119 @@ main {
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 
+/* Desktop amplio: reduce escalas antes del layout de tablet */
+@media (max-width: 1280px) {
+  header {
+    padding-inline: clamp(1.5rem, 5vw, 80px);
+  }
+
+  header h1 {
+    font-size: clamp(2.25rem, 7.5vw, 88px);
+  }
+
+  header .subtitle {
+    font-size: clamp(1rem, 1.8vw, 20px);
+  }
+
+  .end {
+    padding-inline: clamp(1.5rem, 5vw, 80px);
+  }
+}
+
+/* Tablet y móvil grande: apila reproductor y portada */
 @media (max-width: 900px) {
+  header {
+    padding-inline: 1rem;
+  }
+
   main {
     grid-template-columns: 1fr;
-    padding-inline: 1rem;
-    gap: 1.25rem;
+    align-content: space-between; /* player arriba, portada pegada al footer */
+    gap: 1.5rem;
+    padding: 0; /* el gutter lo aporta el player; la portada va a sangre */
+  }
+
+  main .player-container {
+    width: auto; /* ocupa el ancho menos sus márgenes (sin desbordar) */
+    margin: 1.5rem 1rem 0;
+  }
+
+  /* Portada pegada a las paredes: sin márgenes, sin tope y sin radios */
+  main .cover-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
   }
 
   .end .end-logo {
     flex-direction: column;
     text-align: center;
   }
+
+  .end .memerandum {
+    text-align: center;
+  }
 }
 
+/* El zoom del audio desborda la caja del reproductor en anchos intermedios */
+@media (max-width: 760px) {
+  main .player-container audio {
+    height: 40px;
+    zoom: 1;
+  }
+}
+
+/* Móvil */
 @media (max-width: 600px) {
   header {
-    padding: 1.5rem 0px 0px 0px;
+    padding: 1.5rem 1rem;
   }
 
   main {
-    padding-block: 1rem;
+    gap: 1.25rem;
   }
 
   main .player-container {
+    margin: 1.25rem 1rem 0;
     padding: 1rem;
   }
 
-  main .player-container audio {
-    height: 40px;
-    zoom: 1; /* evita desbordamiento horizontal en pantallas pequeñas */
+  .end .end-logo {
+    gap: 6px;
+  }
+
+  .end .end-logo img {
+    width: 120px;
   }
 
   .end .memerandum {
-    margin: 20px 0;
-    text-align: center;
+    margin: 20px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+/* Móvil pequeño */
+@media (max-width: 360px) {
+  header {
+    padding-inline: 0.75rem;
+  }
+
+  main .player-container {
+    margin-inline: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .end {
+    padding-inline: 0.75rem;
+  }
+
+  .end .end-title {
+    font-size: 1.5rem;
+  }
+
+  .end .memerandum {
+    font-size: 0.8125rem;
   }
 }
