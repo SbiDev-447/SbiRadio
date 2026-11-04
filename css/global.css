@@ -65,23 +65,27 @@ body {
 
 header {
   background-color: var(--dark-green);
-  padding: 50px 150px;
+  padding: clamp(1.5rem, 4vw, 50px) clamp(1rem, 8vw, 150px);
   color: var(--almond);
 
   h1 {
-    font-size: 100px;
+    font-size: clamp(2.25rem, 9vw, 100px);
     font-weight: 700;
     font-family: park;
+    line-height: 1.1;
+    overflow-wrap: break-word;
   }
 
   .subtitle {
-    font-size: 24px;
+    display: block;
+    font-size: clamp(1rem, 2.5vw, 24px);
+    line-height: 1.4;
   }
 }
 
 main {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 1.5rem;
   padding-left: 1.5rem;
   align-items: center;
@@ -109,7 +113,7 @@ main {
       height: 32px;
       zoom: 1.3; /* agranda botones y textos (Chrome, Safari, Firefox 126+) */
       border-radius: 10px;
-      border: 2px solid #c9a24a; /* latón */
+      border: 4px solid #c9a24a; /* latón */
       box-shadow:
         inset 0 0 8px rgb(0 0 0 / 0.35),
         0 2px 0 rgb(255 255 255 / 0.15);
@@ -151,6 +155,8 @@ main {
 
     img {
       display: block;
+      width: 100%;
+      height: auto;
     }
   }
 }
@@ -165,7 +171,7 @@ main {
   flex-flow: column nowrap;
   align-items: center;
   justify-content: center;
-  padding: 25px 150px;
+  padding: clamp(1.5rem, 3vw, 25px) clamp(1rem, 8vw, 150px);
   transition: background-color 0.25s ease;
 
   .end-logo {
@@ -185,13 +191,53 @@ main {
 
     .end-title {
       font-family: determination;
-      font-size: 40px;
+      font-size: clamp(1.75rem, 5vw, 40px);
       color: #fafafa;
+      text-align: center;
     }
   }
 
   .memerandum {
     margin: 30px 0px;
     color: #fafafa;
+  }
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+    padding-inline: 1rem;
+    gap: 1.25rem;
+  }
+
+  .end .end-logo {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  header {
+    padding: 1.5rem 1rem;
+  }
+
+  main {
+    padding-block: 1rem;
+  }
+
+  main .player-container {
+    padding: 1rem;
+  }
+
+  main .player-container audio {
+    height: 40px;
+    zoom: 1; /* evita desbordamiento horizontal en pantallas pequeñas */
+  }
+
+  .end .memerandum {
+    margin: 20px 0;
+    text-align: center;
   }
 }
