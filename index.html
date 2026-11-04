@@ -37,7 +37,52 @@
         <audio id="radio-player" controls preload="none">
           <source src="https://radios.yanapak.org/SbiRadio" type="audio/mpeg" />
         </audio>
-        <p class="stream-status" id="stream-status" role="status" hidden></p>
+
+        <!-- Controles propios: JS oculta el reproductor nativo y muestra esta placa.
+             Sin JS, los controles nativos quedan como fallback funcional. -->
+        <div class="player-controls" id="player-controls" hidden>
+          <button
+            type="button"
+            class="play-toggle"
+            id="play-toggle"
+            data-state="paused"
+            aria-label="Reproducir"
+          >
+            <span class="play-toggle__icon" aria-hidden="true"></span>
+          </button>
+          <input
+            id="volume"
+            class="volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.8"
+            aria-label="Volumen"
+          />
+          <button
+            type="button"
+            class="mute-toggle"
+            id="mute-toggle"
+            data-state="on"
+            aria-label="Silenciar"
+          >
+            <svg
+              class="mute-toggle__icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M4 9v6h4l5 4V5L8 9H4z" />
+              <path class="mute-toggle__wave" d="M16 9a4 4 0 0 1 0 6" />
+              <path class="mute-toggle__wave" d="M18.5 6.5a8.5 8.5 0 0 1 0 11" />
+              <line class="mute-toggle__slash" x1="5" y1="19" x2="19" y2="5" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- display fijo tipo radio de auto: siempre visible, muestra STANDBY en reposo -->
+        <p class="stream-status" id="stream-status" role="status"></p>
       </div>
     </main>
     <footer class="end">

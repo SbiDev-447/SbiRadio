@@ -37,15 +37,18 @@
   let retries = 0;
   let retryTimer = 0;
 
+  let statusVisible = false;
+
   const showStatus = (text, variant) => {
     status.textContent = text;
     status.classList.toggle("is-live", variant === "live");
-    status.hidden = false;
+    statusVisible = true;
   };
 
   const hideStatus = () => {
-    status.hidden = true;
+    status.textContent = "";
     status.classList.remove("is-live");
+    statusVisible = false;
   };
 
   /* Cancela un reintento pendiente: si el stream se recuperó antes de
@@ -111,7 +114,7 @@
   });
 
   window.addEventListener("online", () => {
-    if (status.hidden) return;
+    if (!statusVisible) return;
     retries = 0;
     clearRetry();
     attempt();
@@ -141,6 +144,84 @@
       /* sin persistencia en este contexto */
     }
   });
+
+  /* ── Controles propios ──────────────────────────────────────────
+     Progressive enhancement: sin JS el <audio controls> nativo queda
+     como fallback; con JS se oculta y se muestra la placa custom. */
+
+  const controls = document.getElementById("player-controls");
+  const playToggle = document.getElementById("play-toggle");
+  const volumeInput = document.getElementById("volume");
+  const muteToggle = document.getElementById("mute-toggle");
+
+  if (controls && playToggle && volumeInput && muteToggle) {
+    audio.removeAttribute("controls");
+    controls.hidden = false;
+
+    const setToggleState = (playing) => {
+      playToggle.dataset.state = playing ? "playing" : "paused";
+      playToggle.setAttribute("aria-label", playing ? "Pausar" : "Reproducir");
+    };
+
+    /* mute lógico: flag nativo o volumen en cero */
+    const isMuted = () => audio.muted || audio.volume === 0;
+
+    /* volumen al que volver si el usuario desmutea desde cero */
+    let lastVolume = audio.volume > 0 ? audio.volume : 0.8;
+
+    const setMuteState = () => {
+      const muted = isMuted();
+      muteToggle.dataset.state = muted ? "muted" : "on";
+      muteToggle.setAttribute(
+        "aria-label",
+        muted ? "Activar sonido" : "Silenciar",
+      );
+    };
+
+    setToggleState(!audio.paused);
+    setMuteState();
+
+    playToggle.addEventListener("click", () => {
+      if (audio.paused) {
+        const played = audio.play();
+        if (played && typeof played.catch === "function") {
+          played.catch(() => showStatus(HINT));
+        }
+      } else {
+        audio.pause();
+      }
+    });
+
+    muteToggle.addEventListener("click", () => {
+      if (isMuted()) {
+        audio.muted = false;
+        if (audio.volume === 0) audio.volume = lastVolume;
+      } else {
+        lastVolume = audio.volume;
+        audio.muted = true;
+      }
+      setMuteState();
+    });
+
+    audio.addEventListener("play", () => setToggleState(true));
+    audio.addEventListener("pause", () => setToggleState(false));
+
+    volumeInput.value = String(audio.volume);
+    volumeInput.addEventListener("input", () => {
+      audio.muted = false; /* mover el slider devuelve el sonido */
+      audio.volume = Number(volumeInput.value);
+      setMuteState();
+    });
+
+    /* sincroniza slider y botón si el volumen/mute cambia por fuera */
+    audio.addEventListener("volumechange", () => {
+      if (volumeInput.value !== String(audio.volume)) {
+        volumeInput.value = String(audio.volume);
+      }
+      if (audio.volume > 0) lastVolume = audio.volume;
+      setMuteState();
+    });
+  }
 
   /* ── Media Session: identidad en pantalla bloqueada ───────────── */
 
