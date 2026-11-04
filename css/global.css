@@ -29,7 +29,7 @@
 
 @font-face {
   font-family: "park";
-  src: url("../assets/fonts/Fondamento-Regular.ttf") format(truetype);
+  src: url("../assets/fonts/Titania-Regular.ttf") format(truetype);
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -89,6 +89,7 @@ header {
   display: flex;
   flex-direction: column;
   justify-content: center; /* texto centrado en el alto del header */
+  align-items: center;
   background-color: var(--dark-green); /* fallback si la imagen no carga */
   background-image:
     linear-gradient(rgb(1 45 34 / 0.55), rgb(1 45 34 / 0.8)),
@@ -105,7 +106,7 @@ header {
 
   h1 {
     font-size: clamp(2.25rem, 9vw, 100px);
-    font-weight: 700;
+    font-weight: 400;
     font-family: "park";
     line-height: 1.1;
     overflow-wrap: break-word;
@@ -127,6 +128,9 @@ main {
   gap: 1.5rem;
   padding: 1.5rem;
   width: 100%;
+  background-image: url("../assets/img/bg.webp");
+  background-size: cover;
+  background-position: center;
 
   .player-container {
     display: flex;
@@ -378,6 +382,7 @@ main {
   justify-content: center;
   padding: clamp(1.5rem, 3vw, 25px) clamp(1rem, 8vw, 150px);
   transition: background-color 0.25s ease;
+  border-top: 3px solid gold;
 
   .end-logo {
     display: flex;
