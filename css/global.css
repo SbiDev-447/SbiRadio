@@ -86,8 +86,17 @@ body {
 }
 
 header {
-  background-color: var(--dark-green);
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* texto centrado en el alto del header */
+  background-color: var(--dark-green); /* fallback si la imagen no carga */
+  background-image:
+    linear-gradient(rgb(1 45 34 / 0.55), rgb(1 45 34 / 0.8)),
+    url("../assets/img/disco.webp"); /* velo oscuro: el texto necesita contraste sobre la foto */
+  background-size: cover;
+  background-position: center;
   padding: clamp(1.5rem, 4vw, 50px) clamp(1rem, 8vw, 150px);
+  min-height: clamp(240px, 42dvh, 400px); /* 400px en desktop; se achica si la pantalla es baja */
   color: var(--almond);
 
   h1 {
@@ -106,13 +115,13 @@ header {
 }
 
 main {
-  display: grid;
+  display: flex; /* una sola columna: el player se centra solo */
   flex: 1 0 auto; /* ocupa el alto restante: el footer queda al fondo */
-  grid-template-columns: 1fr 2fr;
-  gap: 1.5rem;
-  padding-left: 1.5rem;
+  flex-direction: column;
   align-items: center;
-  align-content: end; /* la portada queda pegada al footer */
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
   width: 100%;
 
   .player-container {
@@ -122,6 +131,7 @@ main {
     align-items: center;
     gap: 0.375rem;
     width: 100%;
+    max-width: 640px; /* la caja no se estira en pantallas anchas */
     padding: 1.5rem 1.25rem;
 
     /* caja de madera */
@@ -181,19 +191,30 @@ main {
     color: var(--almond);
     font-size: 0.75rem;
     text-align: center;
-  }
 
-  .cover-container {
-    width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-
-    img {
-      display: block;
-      width: 100%;
-      height: auto;
+    /* punto verde pulsante cuando el stream está al aire */
+    &.is-live::before {
+      content: "";
+      display: inline-block;
+      width: 0.45rem;
+      height: 0.45rem;
+      margin-inline-end: 0.35rem;
+      border-radius: 50%;
+      background-color: #7ad17a;
+      animation: stream-pulse 1.6s ease-in-out infinite;
     }
+  }
+}
+
+@keyframes stream-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-container .stream-status.is-live::before {
+    animation: none;
   }
 }
 
@@ -271,29 +292,24 @@ main {
   }
 }
 
-/* Tablet y móvil grande: apila reproductor y portada */
+/* Tablet y móvil grande: todo en una columna */
 @media (max-width: 980px) {
   header {
     padding-inline: 1rem;
-    padding-block: clamp(3rem, 8dvh, 8rem); /* el header respira con el viewport y absorbe parte del aire del layout en una columna */
+    padding-block: clamp(
+      3rem,
+      8dvh,
+      8rem
+    ); /* el header respira con el viewport y absorbe parte del aire del layout en una columna */
   }
 
   main {
-    grid-template-columns: 1fr;
-    align-content: safe end; /* portada pegada al footer; el sobrante de alto queda arriba, entre player y portada. Al no caber, `safe` apila desde el arranque en vez de recortar */
-    gap: 1.5rem; /* hueco fijo entre player y portada */
-    padding: 0; /* el gutter lo aporta el player; la portada va a sangre */
+    padding: 1.25rem 1rem; /* el gutter ahora lo aporta main, no el player */
+    gap: 1.25rem;
   }
 
   main .player-container {
-    width: auto; /* ocupa el ancho menos sus márgenes (sin desbordar) */
-    margin: 1.5rem 1rem;
-  }
-
-  /* Portada pegada a las paredes: sin márgenes, sin tope y sin radios */
-  main .cover-container {
     width: 100%;
-    max-width: none;
     margin: 0;
   }
 
@@ -326,7 +342,7 @@ main {
   }
 
   main .player-container {
-    margin: 1.25rem 1rem 0;
+    margin: 0;
     padding: 1rem;
   }
 
@@ -351,8 +367,11 @@ main {
     padding-inline: 0.75rem;
   }
 
+  main {
+    padding-inline: 0.75rem;
+  }
+
   main .player-container {
-    margin-inline: 0.75rem;
     padding: 0.75rem;
   }
 
