@@ -356,6 +356,35 @@ main {
       animation: stream-pulse 1.6s ease-in-out infinite;
     }
   }
+
+  /* contador de oyentes: línea discreta bajo el display del stream */
+  .player-container .listeners {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin: 0;
+    color: #ecd9a6;
+    font-family: "determination", ui-monospace, "Cascadia Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.7);
+
+    /* visible solo cuando JS encontró un conteo válido */
+    &:not([hidden]) {
+      display: flex;
+    }
+
+    .listeners__value {
+      color: #7dffa8;
+      text-shadow:
+        0 0 6px rgb(125 255 168 / 0.55),
+        0 0 14px rgb(125 255 168 / 0.25);
+    }
+  }
 }
 
 @keyframes stream-pulse {

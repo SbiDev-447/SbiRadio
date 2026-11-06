@@ -120,6 +120,81 @@
     attempt();
   });
 
+  /* ── Oyentes del stream ─────────────────────────────────────────
+     Icecast publica las conexiones activas de cada mount en su endpoint
+     de estadísticas. Cada <audio> reproduciendo cuenta como una conexión
+     más, igual que un reproductor externo: el número es el total del
+     stream, no solo el de esta página.
+     Si no hay datos (mount caído, red sin respuesta) el contador se
+     oculta: nunca inventamos un cero. */
+
+  const STATS_URL = "https://radios.yanapak.org/status-json.xsl";
+  const STREAM_MOUNT = "/SbiRadio";
+  const LISTENERS_POLL_MS = 20000;
+  const LISTENERS_TIMEOUT_MS = 10000;
+
+  const listeners = document.getElementById("listener-count");
+  const listenersValue = listeners?.querySelector(".listeners__value");
+
+  if (listeners && listenersValue) {
+    const formatListeners = new Intl.NumberFormat("es");
+
+    let listenersInFlight = false;
+
+    const renderListeners = (count) => {
+      if (count === null) {
+        listeners.hidden = true;
+        return;
+      }
+      listenersValue.textContent = formatListeners.format(count);
+      listeners.hidden = false;
+    };
+
+    /* Soporta la forma filtrada (objeto) y la global (array de mounts) */
+    const readListeners = (icestats) => {
+      const source = Array.isArray(icestats?.source)
+        ? icestats.source.find((item) => item.listenurl?.endsWith(STREAM_MOUNT))
+        : icestats?.source;
+      if (!source || !Number.isInteger(source.listeners)) return null;
+      return source.listeners;
+    };
+
+    const fetchListeners = async () => {
+      if (listenersInFlight || document.hidden || !navigator.onLine) return;
+      listenersInFlight = true;
+
+      const controller = new AbortController();
+      const abortTimer = setTimeout(
+        () => controller.abort(),
+        LISTENERS_TIMEOUT_MS,
+      );
+
+      try {
+        const url = `${STATS_URL}?mount=${encodeURIComponent(STREAM_MOUNT)}`;
+        const response = await fetch(url, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`stats ${response.status}`);
+        renderListeners(readListeners((await response.json()).icestats));
+      } catch {
+        renderListeners(null);
+      } finally {
+        clearTimeout(abortTimer);
+        listenersInFlight = false;
+      }
+    };
+
+    fetchListeners();
+    window.setInterval(fetchListeners, LISTENERS_POLL_MS);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) fetchListeners();
+    });
+    window.addEventListener("online", fetchListeners);
+    /* el propio cliente se suma al mount al arrancar: refresca al instante */
+    audio.addEventListener("playing", fetchListeners);
+  }
+
   /* ── Volumen persistente ──────────────────────────────────────── */
 
   const STORAGE_KEY = "sbiradio:audio";

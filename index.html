@@ -87,6 +87,12 @@
 
         <!-- display fijo tipo radio de auto: siempre visible, muestra STANDBY en reposo -->
         <p class="stream-status" id="stream-status" role="status"></p>
+
+        <!-- Oyentes del stream (Icecast). Se oculta si no hay datos. -->
+        <p class="listeners" id="listener-count" hidden>
+          <span class="listeners__value">—</span>
+          <span class="listeners__label">escuchando ahora</span>
+        </p>
       </div>
     </main>
     <footer class="end">
