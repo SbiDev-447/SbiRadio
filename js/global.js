@@ -142,12 +142,10 @@
     let listenersInFlight = false;
 
     const renderListeners = (count) => {
-      if (count === null) {
-        listeners.hidden = true;
-        return;
-      }
+      /* el espacio ya está reservado en el layout: solo cambia la visibilidad */
+      listeners.classList.toggle("is-visible", count !== null);
+      if (count === null) return;
       listenersValue.textContent = formatListeners.format(count);
-      listeners.hidden = false;
     };
 
     /* Soporta la forma filtrada (objeto) y la global (array de mounts) */

@@ -250,6 +250,8 @@ main {
     .volume {
       flex: 1 1 auto;
       min-width: 0;
+      /* más aire respecto al play: evita que el conjunto parezca una barra de tiempo */
+      margin-inline-start: 0.75rem;
       accent-color: var(--dark-green);
       cursor: pointer;
     }
@@ -357,13 +359,17 @@ main {
     }
   }
 
-  /* contador de oyentes: línea discreta bajo el display del stream */
+  /* contador de oyentes: línea discreta bajo el display del stream.
+     Reserva su alto siempre (visibility) para que el player no salte
+     cuando aparece el primer conteo. */
   .player-container .listeners {
-    display: none;
+    display: flex;
+    align-self: flex-end;
     align-items: center;
     justify-content: center;
     gap: 0.35rem;
     margin: 0;
+    visibility: hidden;
     color: #ecd9a6;
     font-family: "determination", ui-monospace, "Cascadia Mono", monospace;
     font-size: 0.75rem;
@@ -374,8 +380,8 @@ main {
     text-shadow: 0 1px 2px rgb(0 0 0 / 0.7);
 
     /* visible solo cuando JS encontró un conteo válido */
-    &:not([hidden]) {
-      display: flex;
+    &.is-visible {
+      visibility: visible;
     }
 
     .listeners__value {
