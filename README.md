@@ -1,5 +1,4 @@
-
-![BannerSbiRadio]("./assets/img/banner.webp")
+![banner](./banner.webp)
 
 # SbiRadio — Tu Emisora
 
