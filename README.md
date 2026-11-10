@@ -27,6 +27,23 @@ Todo el sitio es estático — HTML, CSS y JavaScript sin dependencias.
 - **Cero dependencias** — no hay librerías ni frameworks: solo HTML, CSS y
   JavaScript nativos.
 
+## Estructura del código
+
+El JS se carga como módulos ES (`<script type="module">`), sin build ni
+dependencias. Por eso el sitio necesita servirse por HTTP (por ejemplo
+`python3 -m http.server` o la extensión Live Server); abrir `index.html`
+directamente con `file://` no carga los módulos.
+
+- `js/main.js` — punto de entrada y orden de arranque.
+- `js/player/elements.js` — referencias al DOM de la página.
+- `js/player/status.js` — placa de estado y marquesina del stream.
+- `js/player/resilience.js` — reintentos automáticos y recuperación del stream.
+- `js/player/volume.js` — volumen y mute persistentes.
+- `js/player/controls.js` — controles propios del reproductor.
+- `js/player/media-session.js` — identidad en la pantalla bloqueada.
+- `js/listeners.js` — contador de oyentes de Icecast.
+- `js/share.js` — botón de compartir.
+
 ## Créditos
 
 Hecho con ❤️ y Software Libre por **~SbiDev**.
