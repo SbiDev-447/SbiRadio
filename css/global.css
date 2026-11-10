@@ -43,6 +43,7 @@
   --almond: #dec4ab;
   --end-bg: #06080f;
   --end-grid-line: rgb(106 192 181 / 0.18);
+  --glow-green: 125 255 168; /* acento luminoso (canales RGB) de cards y footer */
 }
 
 * {
@@ -121,12 +122,13 @@ header {
 
 main {
   display: flex; /* una sola columna: el player se centra solo */
-  flex: 1 0 auto; /* ocupa el alto restante: el footer queda al fondo */
+  flex: 0 0 auto; /* no crece: el fondo de oleaje queda pegado al reproductor */
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  padding: 1.5rem;
+  /* más aire vertical: la banda de oleaje ocupa más alto alrededor del player */
+  padding: clamp(2.5rem, 6vw, 5rem) 1.5rem;
   width: 100%;
   background-image: url("../assets/img/bg.webp");
   background-size: cover;
@@ -322,15 +324,15 @@ main {
 
   .player-container .stream-status {
     /* display de radio de auto incrustado en la madera: marco oscuro + vidrio */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    min-inline-size: 13rem;
-    max-width: 100%;
-    min-height: 2rem;
-    margin: 0;
-    padding: 0.3rem 0.9rem;
+    order: -1; /* siempre arriba del todo dentro del player */
+    display: block;
+    width: 100%;
+    max-width: 520px;
+    min-height: 2.5rem; /* un poco más alto */
+    margin: 0 0 1rem; /* separación respecto al reproductor */
+    padding: 0.45rem 1rem;
+    /* el texto largo se desplaza como en una radio de auto: no agranda la placa */
+    overflow: hidden;
     border: 2px solid #14100a;
     border-radius: 6px;
     background-color: #06120c;
@@ -344,7 +346,8 @@ main {
     font-family: "determination", ui-monospace, "Cascadia Mono", monospace;
     font-size: 0.8rem;
     letter-spacing: 0.12em;
-    line-height: 1.2;
+    /* el alto de línea completa el min-height: texto centrado en vertical */
+    line-height: 1.6rem;
     text-align: center;
     text-transform: uppercase;
     white-space: nowrap;
@@ -356,20 +359,37 @@ main {
       /* aro latón interior */ inset 0 3px 10px rgb(0 0 0 / 0.85),
       0 2px 4px rgb(0 0 0 / 0.45);
 
+    /* texto del display: se mide y se anima solo si desborda */
+    .stream-status__text {
+      display: inline-block;
+      white-space: nowrap;
+    }
+
     /* sin estado: el vidrio queda encendido pero en reposo */
-    &:empty::after {
+    .stream-status__text:empty::after {
       content: "STANDBY";
       color: #2f6b4c;
       text-shadow: none;
+    }
+
+    /* desplazamiento de ida y vuelta cuando el mensaje no entra */
+    &.is-scrolling {
+      text-align: left;
+    }
+
+    &.is-scrolling .stream-status__text {
+      animation: stream-marquee var(--marquee-duration, 8s) linear infinite
+        alternate;
     }
 
     /* punto verde pulsante cuando el stream está al aire */
     &.is-live::before {
       content: "";
       display: inline-block;
-      flex: 0 0 auto;
       width: 0.45rem;
       height: 0.45rem;
+      margin-inline-end: 0.4rem;
+      vertical-align: middle;
       border-radius: 50%;
       background-color: #7dffa8;
       box-shadow: 0 0 6px rgb(125 255 168 / 0.8);
@@ -382,11 +402,11 @@ main {
      cuando aparece el primer conteo. */
   .player-container .listeners {
     display: flex;
-    align-self: flex-end;
+    align-self: center; /* centrado bajo el reproductor */
     align-items: center;
     justify-content: center;
     gap: 0.35rem;
-    margin: 0;
+    margin: 1rem 0 0; /* separación respecto al reproductor */
     visibility: hidden;
     color: #ecd9a6;
     font-family: "determination", ui-monospace, "Cascadia Mono", monospace;
@@ -411,13 +431,207 @@ main {
   }
 }
 
+/* ── Secciones informativas ───────────────────────────────────────
+   Viven fuera de <main> a propósito: así no heredan el fondo del
+   reproductor y cada una puede recibir su propio fondo más adelante. */
+.info {
+  display: flex;
+  flex: 1 0 auto; /* absorbe el alto libre: el footer queda al fondo */
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  width: 100%;
+  /* fondo de vinilo detrás de las cards; el velo oscuro mantiene el foco
+     en el contenido y evita que la foto compita con las tarjetas */
+  background-color: var(--end-bg); /* respaldo si la imagen no carga */
+  background-image:
+    linear-gradient(rgb(6 8 15 / 0.35), rgb(6 8 15 / 0.65)),
+    url("../assets/img/bg-disco2.webp");
+  background-size: cover;
+  background-position: center;
+  /* aire arriba y abajo: las cards respiran respecto al reproductor y al footer */
+  padding: clamp(3.5rem, 8vw, 6rem) 1.5rem clamp(3rem, 6vw, 4.5rem);
+
+  /* Card vintage de papel envejecido sobre verde profundo: a propósito no
+     repite la placa crema con aro de latón del reproductor. */
+  .panel {
+    width: 100%;
+    max-width: 640px;
+    padding: 1.5rem 1.5rem 1.6rem;
+    /* marco de latón, en sintonía con el aro del reproductor */
+    border: 3px solid #c9a24a;
+    border-radius: 4px;
+    background-color: #0d3a2c;
+    background-image:
+      radial-gradient(rgb(236 217 166 / 0.05) 1px, transparent 1px),
+      linear-gradient(180deg, rgb(255 255 255 / 0.05), transparent 60%);
+    background-size:
+      6px 6px,
+      100% 100%;
+    color: #e6d7b4;
+    box-shadow:
+      /* doble filete interior: separa el contenido del marco */
+      inset 0 0 0 5px #0d3a2c,
+      inset 0 0 0 6px rgb(236 217 166 / 0.28),
+      0 14px 30px rgb(0 0 0 / 0.28);
+
+    h2 {
+      margin: 0 0 0.75rem;
+      font-family: "park", Georgia, "Times New Roman", serif;
+      font-size: clamp(1.5rem, 3.5vw, 1.9rem);
+      font-weight: 400;
+      line-height: 1.15;
+      color: #f4e8ca;
+
+      /* filete corto bajo el título */
+      &::after {
+        content: "";
+        display: block;
+        width: 2.75rem;
+        height: 1px;
+        margin-top: 0.6rem;
+        background-color: rgb(236 217 166 / 0.45);
+      }
+    }
+
+    p {
+      margin: 0 0 0.9rem;
+      /* lectura cómoda: párrafos de las cards a 18px con interlineado amplio */
+      font-size: 1.125rem;
+      line-height: 1.65;
+    }
+
+    /* los enlaces dentro del texto se distinguen; los botones no */
+    p a {
+      color: #f7ecd2;
+      text-decoration: underline;
+      text-decoration-color: rgb(236 217 166 / 0.45);
+      text-underline-offset: 2px;
+
+      &:hover,
+      &:focus-visible {
+        text-decoration-color: currentColor;
+      }
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center; /* etiquetas centradas dentro de la card */
+      gap: 0.4rem;
+      margin: 1rem 0 0;
+      padding: 0;
+
+      li {
+        padding: 0.22rem 0.55rem;
+        border: 1px solid rgb(236 217 166 / 0.35);
+        border-radius: 2px;
+        color: #d9c8a3;
+        font-family: "determination", ui-monospace, "Cascadia Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        line-height: 1.3;
+        text-transform: uppercase;
+      }
+    }
+
+    .listen-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center; /* botones centrados dentro de la card */
+      gap: 0.5rem;
+      /* más aire arriba: la card no queda con la mitad inferior vacía */
+      margin: 2rem 0 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.5rem;
+      padding: 0.45rem 1rem;
+      border: 1px solid rgb(1 45 34 / 0.55);
+      border-radius: 2px;
+      background-color: #e6d7b4;
+      color: #0b2f24;
+      font-family: "determination", ui-monospace, "Cascadia Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.09em;
+      line-height: 1.2;
+      text-align: center;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 2px 0 rgb(0 0 0 / 0.25);
+      transition:
+        transform 0.12s ease,
+        background-color 0.12s ease,
+        box-shadow 0.12s ease;
+
+      &:hover,
+      &:focus-visible {
+        background-color: #f4e8ca;
+        box-shadow: 0 3px 0 rgb(0 0 0 / 0.25);
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        box-shadow: 0 1px 0 rgb(0 0 0 / 0.25);
+        transform: translateY(0);
+      }
+    }
+
+    .chip--button {
+      appearance: none;
+    }
+
+    /* `display` del chip pisaría el [hidden] del navegador: el botón debe
+       permanecer oculto hasta que JS confirme que puede compartir. */
+    .chip--button[hidden] {
+      display: none;
+    }
+
+    .share-status {
+      min-height: 1.2rem; /* reserva el alto: el texto no hace saltar la card */
+      margin: 0.6rem 0 0;
+      color: #cdbc98;
+      font-family: "determination", ui-monospace, "Cascadia Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.09em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+  }
+}
+
 @keyframes stream-pulse {
   50% {
     opacity: 0.3;
   }
 }
 
+@keyframes stream-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(var(--marquee-distance, 0px));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* sin animación: el mensaje largo se recorta con puntos suspensivos */
+  .player-container .stream-status .stream-status__text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .player-container .stream-status.is-live::before {
     animation: none;
   }
@@ -435,7 +649,10 @@ main {
   justify-content: center;
   padding: clamp(1.5rem, 3vw, 25px) clamp(1rem, 8vw, 150px);
   transition: background-color 0.25s ease;
-  border-top: 3px solid gold;
+  /* resplandor que sube desde el borde superior del footer */
+  box-shadow:
+    0 -2px 10px rgb(var(--glow-green) / 0.35),
+    0 -14px 40px rgb(var(--glow-green) / 0.22);
 
   .end-logo {
     display: flex;
@@ -479,6 +696,22 @@ main {
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 
+/* Pantallas grandes: las dos cards informativas comparten la fila.
+   El padding centra el contenido a 1360px sin recortar el fondo de vinilo,
+   que sigue cubriendo todo el ancho de la sección. */
+@media (min-width: 981px) {
+  .info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch; /* las dos cards toman el mismo alto */
+    padding-inline: max(1.5rem, calc((100% - 1360px) / 2));
+  }
+
+  .info .panel {
+    max-width: none;
+  }
+}
+
 /* Desktop amplio: reduce escalas antes del layout de tablet */
 @media (max-width: 1280px) {
   header {
@@ -510,7 +743,7 @@ main {
   }
 
   main {
-    padding: 1.25rem 1rem; /* el gutter ahora lo aporta main, no el player */
+    padding: clamp(2rem, 6vw, 3.25rem) 1rem; /* el gutter ahora lo aporta main, no el player */
     gap: 1.25rem;
   }
 
@@ -552,6 +785,18 @@ main {
     padding: 1rem;
   }
 
+  .info {
+    padding: 2.75rem 1rem 1.75rem;
+  }
+
+  .info .panel {
+    padding: 1rem;
+  }
+
+  .info .panel .chip {
+    flex: 1 1 auto; /* los botones ocupan el ancho disponible al envolverse */
+  }
+
   .end .end-logo {
     gap: 6px;
   }
@@ -562,8 +807,8 @@ main {
 
   .end .memerandum {
     margin: 20px 0 0;
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: 0.9375rem;
+    line-height: 1.55;
   }
 }
 
@@ -581,6 +826,14 @@ main {
     padding: 0.75rem;
   }
 
+  .info {
+    padding: 2.25rem 0.75rem 1.5rem;
+  }
+
+  .info .panel {
+    padding: 0.75rem;
+  }
+
   .end {
     padding-inline: 0.75rem;
   }
@@ -590,6 +843,6 @@ main {
   }
 
   .end .memerandum {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 }

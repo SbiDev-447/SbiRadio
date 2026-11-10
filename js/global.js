@@ -21,7 +21,15 @@
 
   const audio = document.getElementById("radio-player");
   const status = document.getElementById("stream-status");
-  if (!audio || !status) return;
+  const statusText = document.getElementById("stream-status-text");
+  if (!audio || !status || !statusText) return;
+
+  /* Media Session disponible (o null). Se declara antes de los listeners
+     porque el de `error` lo consulta para limpiar el estado del sistema. */
+  const session =
+    "mediaSession" in navigator && typeof MediaMetadata === "function"
+      ? navigator.mediaSession
+      : null;
 
   /* ── Resiliencia del stream ─────────────────────────────────────
      El <audio> nativo nunca reintenta: cuando el stream en vivo cae
@@ -32,22 +40,48 @@
   const MAX_RETRIES = 2;
   const RETRY_DELAYS_MS = [1000, 3000];
   const LIVE = "EN VIVO";
-  const HINT = "Stream no disponible. Tocá reproducir para reintentar.";
+  const HINT = "Stream no disponible. Pulsa reproducir para reintentar.";
 
   let retries = 0;
   let retryTimer = 0;
 
   let statusVisible = false;
 
+  /* Desplazamiento tipo radio de auto: si el mensaje no entra en la placa,
+     se mueve de lado a lado en lugar de cortarse. Con movimiento reducido
+     no se anima y el CSS cae a puntos suspensivos. */
+  const updateMarquee = () => {
+    status.classList.remove("is-scrolling");
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+      return;
+    }
+
+    const style = getComputedStyle(status);
+    const innerWidth =
+      status.clientWidth -
+      parseFloat(style.paddingLeft) -
+      parseFloat(style.paddingRight);
+    const distance = Math.ceil(statusText.scrollWidth - innerWidth);
+    if (distance <= 1) return;
+
+    status.style.setProperty("--marquee-distance", `-${distance}px`);
+    status.style.setProperty(
+      "--marquee-duration",
+      `${Math.min(14, Math.max(6, distance / 40))}s`,
+    );
+    status.classList.add("is-scrolling");
+  };
+
   const showStatus = (text, variant) => {
-    status.textContent = text;
+    statusText.textContent = text;
     status.classList.toggle("is-live", variant === "live");
     statusVisible = true;
+    updateMarquee();
   };
 
   const hideStatus = () => {
-    status.textContent = "";
-    status.classList.remove("is-live");
+    statusText.textContent = "";
+    status.classList.remove("is-live", "is-scrolling");
     statusVisible = false;
   };
 
@@ -113,8 +147,10 @@
     clearRetry();
   });
 
+  /* Solo reintenta si el reproductor está detenido por un fallo. Si sigue
+     sonando, el navegador se recupera solo: recargarlo cortaría el audio. */
   window.addEventListener("online", () => {
-    if (!statusVisible) return;
+    if (!statusVisible || !audio.paused) return;
     retries = 0;
     clearRetry();
     attempt();
@@ -255,13 +291,23 @@
     setMuteState();
 
     playToggle.addEventListener("click", () => {
-      if (audio.paused) {
-        const played = audio.play();
-        if (played && typeof played.catch === "function") {
-          played.catch(() => showStatus(HINT));
-        }
-      } else {
+      if (!audio.paused) {
         audio.pause();
+        return;
+      }
+
+      /* Reintento manual: descarta reintentos pendientes y, si el stream
+         quedó en error, recarga la fuente antes de reproducir. */
+      retries = 0;
+      clearRetry();
+      if (audio.error) {
+        attempt();
+        return;
+      }
+
+      const played = audio.play();
+      if (played && typeof played.catch === "function") {
+        played.catch(() => showStatus(HINT));
       }
     });
 
@@ -297,11 +343,6 @@
   }
 
   /* ── Media Session: identidad en pantalla bloqueada ───────────── */
-
-  const session =
-    "mediaSession" in navigator && typeof MediaMetadata === "function"
-      ? navigator.mediaSession
-      : null;
 
   if (session) {
     const setMetadata = () => {
@@ -345,4 +386,58 @@
       session.playbackState = "paused";
     });
   }
+})();
+
+/* ── Compartir ────────────────────────────────────────────────────
+   Botón opcional: usa la hoja nativa del sistema cuando existe y cae a
+   copiar el enlace. Sin JS, o sin ninguna de las dos APIs, el botón
+   queda oculto y la sección sigue funcionando con los enlaces normales. */
+
+(() => {
+  "use strict";
+
+  const button = document.getElementById("share-button");
+  const status = document.getElementById("share-status");
+  if (!button) return;
+
+  const canShare = typeof navigator.share === "function";
+  const canCopy =
+    typeof navigator.clipboard?.writeText === "function" &&
+    window.isSecureContext;
+
+  if (!canShare && !canCopy) return;
+
+  button.hidden = false;
+
+  let resetTimer = 0;
+  const announce = (message) => {
+    if (!status) return;
+    status.textContent = message;
+    window.clearTimeout(resetTimer);
+    resetTimer = window.setTimeout(() => {
+      status.textContent = "";
+    }, 3000);
+  };
+
+  button.addEventListener("click", async () => {
+    const url = window.location.href;
+
+    try {
+      if (canShare) {
+        await navigator.share({
+          title: document.title,
+          text: "Escucha SbiRadio",
+          url,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(url);
+      announce("Enlace copiado");
+    } catch (error) {
+      /* cancelar la hoja nativa no es un error */
+      if (error && error.name === "AbortError") return;
+      announce("No se pudo compartir. Copia el enlace de la barra.");
+    }
+  });
 })();

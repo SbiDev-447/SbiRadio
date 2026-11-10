@@ -6,7 +6,7 @@
 
 SbiRadio es una emisora comunitaria y un reproductor web minimalista. Nació como un
 espacio para escuchar música tranquila sin ruido, sin cuentas, sin anuncios y sin
-distracciones: abrís la página, le das play y ya estás escuchando.
+distracciones: abres la página, pulsas reproducir y ya estás escuchando.
 
 Todo el sitio es estático — HTML, CSS y JavaScript sin dependencias.
 
@@ -17,10 +17,15 @@ Todo el sitio es estático — HTML, CSS y JavaScript sin dependencias.
 - **Contador de oyentes** — lee las conexiones activas del mount desde las
   estadísticas públicas de Icecast; si el servidor no responde, se oculta en vez de
   mostrar un número inventado.
+- **Sobre la radio** — una sección breve con la identidad de la emisora y su
+  compromiso: sin cuentas, sin anuncios y Software Libre.
+- **Dónde escuchar** — enlaces al stream directo y un archivo `sbiradio.pls`
+  para abrirlo en VLC, foobar2000 u otra app de radio, más un botón para
+  compartir en móviles.
 - **Estética retro** — portada de vinilo, tipografías pixeladas y degradados suaves,
   pensados para acompañar la música en vez de competir con ella.
-- **Cero dependencias** — si el navegador puede reproducir MP3, puede reproducir
-  SbiRadio.
+- **Cero dependencias** — no hay librerías ni frameworks: solo HTML, CSS y
+  JavaScript nativos.
 
 ## Créditos
 

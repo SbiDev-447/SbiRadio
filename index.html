@@ -20,6 +20,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="SbiRadio es una emisora comunitaria y un reproductor web minimalista. Escucha música tranquila sin cuentas, sin anuncios y sin distracciones."
+    />
     <link rel="icon" type="image/x-icon" href="./assets/img/favicon.ico" />
     <title>SbiRadio</title>
     <link href="css/global.css" rel="stylesheet" />
@@ -89,7 +93,9 @@
         </div>
 
         <!-- display fijo tipo radio de auto: siempre visible, muestra STANDBY en reposo -->
-        <p class="stream-status" id="stream-status" role="status"></p>
+        <p class="stream-status" id="stream-status" role="status">
+          <span class="stream-status__text" id="stream-status-text"></span>
+        </p>
 
         <!-- Oyentes del stream (Icecast). Reserva su espacio aunque no haya datos. -->
         <p class="listeners" id="listener-count">
@@ -98,6 +104,62 @@
         </p>
       </div>
     </main>
+
+    <!-- Secciones fuera de <main> a propósito: no heredan el fondo del
+         reproductor y cada una puede recibir su propio fondo más adelante. -->
+    <div class="info">
+      <section class="panel" aria-labelledby="about-title">
+        <h2 id="about-title">Sobre la radio</h2>
+        <p>
+          SbiRadio es una emisora comunitaria y un reproductor web minimalista.
+          Un espacio para escuchar música tranquila sin ruido: sin cuentas, sin
+          anuncios y sin distracciones. Abre la página, pulsa reproducir y ya
+          estás escuchando.
+        </p>
+        <p>
+          Distribuido como Software Libre bajo licencia GPLv3. El streaming está
+          provisto por <a href="https://radios.yanapak.org">Yanapak</a>.
+        </p>
+        <ul class="tags">
+          <li>Emisora comunitaria</li>
+          <li>Sin cuentas</li>
+          <li>Sin anuncios</li>
+          <li>Software Libre</li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="listen-title">
+        <h2 id="listen-title">Dónde escuchar</h2>
+        <p>
+          Además del reproductor de esta página, puedes escuchar el stream desde
+          tu reproductor de música favorito con el archivo de lista. Funciona en
+          VLC, foobar2000 y la mayoría de las apps de radio.
+        </p>
+        <div class="listen-actions">
+          <a
+            class="chip"
+            href="https://radios.yanapak.org/SbiRadio"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Abrir el stream
+          </a>
+          <a class="chip" href="./sbiradio.pls" download="sbiradio.pls">
+            Agregar a un reproductor
+          </a>
+          <button
+            type="button"
+            class="chip chip--button"
+            id="share-button"
+            hidden
+          >
+            Compartir
+          </button>
+        </div>
+        <p class="share-status" id="share-status" role="status"></p>
+      </section>
+    </div>
+
     <footer class="end">
       <div class="end-logo">
         <img
